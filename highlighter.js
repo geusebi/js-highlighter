@@ -3,9 +3,9 @@
 Simple token-based code highlighting.
 
 SUGGESTION
-Read the SHORT SUMMARY and the SHORT EXAMPLE at the end of
-the source code to get a general idea of how everything
-works. Then read the actual code to understand the details.
+Read the SHORT SUMMARY and the SHORT EXAMPLE at the end of the source
+code to get a general idea of how everything works. Then read the
+actual code to understand the details.
 Languages pack is a good set of examples too.
 */
 
@@ -30,13 +30,21 @@ function Scanner(patterns_list=[]) {
         on_match
     };
 
-    /* Add a function or regex to the list of patterns.
-    The pattern will try to match tokens of type 'id'.
-    'func_or_re' could be a regex with an optional
-    capturing index (see '_from_regex'); or could be a
-    function of the form
-    (source, position, context) => "token string".
-    'context' is an object shared between patterns.
+    /*
+    Pattern function definition
+    It is a function which try to match a token of type 'id'.
+    Return the matching string or, if it fails, 'undefined'.
+    The function should have a signature of the form:
+    (src, i, ctx) // ctx is optional
+    'source' is the actual source string,
+    'i' is position from where to try to match the token,
+    'context' is an object shared between all the patterns.
+    */
+
+    /* Add a function or a regex to the list of patterns.
+    'func_or_re' could be valid pattern matching function
+    (see Pattern function definition) or a regex with an optional
+    capturing index (see '_from_regex').
     */
     function add(id, func_or_re, index) {
         let pattern = func_or_re;
@@ -46,31 +54,44 @@ function Scanner(patterns_list=[]) {
         patterns.push([id, pattern]);
     }
 
-    /* A function called after every successful pattern match.
-    The default one only stores the last token.
-    It is meant to be substituted by assigning a new one
-    directly to 'scanner.on_match'. It could be used to
-    implement more complex behaviour (e.g. backtracking).
+    /* Convert a regex to a pattern function.
+    'index' controls which capturing group is the actual lexeme.
+    If not given the whole matching string is the lexeme.
     */
-    function on_match(token, context) {
-        context.last = token;
+    function _from_regex(re, index=0) {
+        const re_y = RegExp(re, re.flags + "y");
+        return function (source, i) {
+            re_y.lastIndex = i;
+            const match = source.match(re_y);
+            if (match /* !== null */) {
+                return match[index] || "";
+            }
+            return undefined;
+        }
     }
+
+    /* A function called after every successful pattern match.
+    The default one does nothing.
+    It is meant to be substituted by assigning a new one directly to
+    'scanner.on_match'. It could be used to implement more complex
+    behaviour (e.g. backtracking).
+    */
+    function on_match(token, context) {}
 
     /* Iterator of tokens over a given source.
 
     Rules of the game:
-    - No patterns is ever called if there is no more input
-      to consume,
+    - No patterns is ever run if there is no more input to consume,
     - first token is always <"(start)">,
-    - patterns are run from first to last to match a token,
-    - if a matching token is the empty string then a token of
-      the form <"(empty)"> is generated to signal an error,
-    - if no patterns match at the given position then a token
-      of the form <"(unmatched)", current char> is generated,
+    - patterns are run from first to last,
+    - first pattern to match emit the token and restart the cycle,
+    - an empty match emit the token but does not restart the cycle,
+    - if there's no match at the current position then emit a
+        token <"(unmatched)", current char> to signal an error,
     - last token is always <"(end)">,
     - a 'context' object is shared by all the patterns,
-    - 'on_match(token, context)' is called after each
-    matched token (except '(start)' and '(end)').
+    - 'on_match(token, context)' is called after each emitted token
+        (except for '(start)', '(end)' and '(unmatched)').
     */
     function* iter_tokens(source, context={}) {
         let i = 0, guard, lexeme, token;
@@ -80,44 +101,26 @@ function Scanner(patterns_list=[]) {
             guard = i;
             for (const [id, pattern] of patterns) {
                 lexeme = pattern(source, i, context);
-                if (!lexeme) {
+                if (lexeme === undefined) {
                     continue;
                 }
 
-                if (lexeme.length != 0) {
-                    token = Token(id, lexeme, i);
-                    i += lexeme.length;
+                token = Token(id, lexeme, i);
+                yield token;
+                on_match(token, context);
+                i += lexeme.length;
+
+                if (lexeme.length !== 0) {
                     break;
                 }
-
-                token = Token("(empty)", "", i);
             }
 
             if (guard == i) {
-                token = Token("(unmatched)", source[i], i);
+                yield Token("(unmatched)", source[i], i);
                 i += 1;
             }
-
-            yield token;
-            on_match(token, context);
         }
         yield Token("(end)", "", i);
-    }
-
-    /* Convert a regex to a suitable pattern.
-    'index' controls which capturing group is the actual
-    lexeme. If not given the whole matching string is
-    returned.
-    */
-    function _from_regex(re, index=0) {
-        const re_y = RegExp(re, re.flags + "y");
-        return function (source, i) {
-            re_y.lastIndex = i;
-            const match = source.match(re_y);
-            if (match) {
-                return match[index];
-            }
-        }
     }
 }
 
@@ -139,8 +142,8 @@ function Transformer(rules_dict) {
         transform
     };
 
-    /* If it exists a rule matching the token then transform
-    it accordingly. Else apply the '(unknown)' rule.
+    /* If it exists a rule matching the token then transform it
+    accordingly. Else apply the '(unknown)' rule.
     */
     function transform(token) {
         if (rules.hasOwnProperty(token.id)) {
@@ -179,8 +182,8 @@ function Translator(specs={}) {
     }
 
     /* Exposed API
-    'translator.token' and 'translator.convert' is sugar to
-    ease adding patterns and rules.
+    'translator.token' and 'translator.convert' is sugar to ease
+    adding patterns and rules.
     */
     return {
         scanner,
@@ -190,9 +193,8 @@ function Translator(specs={}) {
         convert: transformer.add
     };
 
-    /* Translate 'source' by tokenizing using the suite's
-    scanner and transforming the tokens with the suite's
-    transformer.
+    /* Translate 'source' by tokenizing using the suite's scanner
+    and transforming the tokens with the suite's transformer.
     Return the translated source as a string.
     */
     function translate(source) {
