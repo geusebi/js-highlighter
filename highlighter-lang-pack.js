@@ -24,16 +24,17 @@ const suites = {};
         "while|with|yield)[^a-z]"
     );
 
-    token("keyword", RegExp(keywords), 1);
+    token("space", /\s+/);
 
+    token("keyword", RegExp(keywords), 1);
     token("name", /[a-z_][a-z\d_]*/i);
 
-    token("number", /0b[01]+|0o[0-7]+|0x[0-9a-f]+/i);
-    token("number", /\d+(\.\d*)?(E\d+)?J?/i);
-    token("number", /\.\d+(E\d+)?J?/i);
+    token("number", /0b[01]+|0o[0-7]+|0x[\dA-F]+/i);
+    token("number", /\d+(\.\d*)?(E[+-]?\d+)?/i);
+    token("number", /\.\d+(E[+-]?\d+)?/i);
 
-    token("comment", /\/\/.*$/m);
-    token("comment", /\/\*[^]*?\*\/?/m);
+    token("comment", /\/\/.*$/);
+    token("comment", /\/\*[^]*?\*\//m);
 
     token("quoted", /"(\\.|[^"])*?"/);
     token("quoted", /'(\\.|[^'])*?'/);
@@ -41,12 +42,10 @@ const suites = {};
 
     token("operator", /[=<>!*&|\/%^+-][=<>&|]*/);
 
-    token("space", /\s+/);
-
     token("char", (source, i) => source[i]);
 
     convert(
-        ["keyword", "number", "comment", "quoted"],
+        ["keyword", "number", "comment", "quoted", "operator"],
         to_span
     );
 }
