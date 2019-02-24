@@ -7,7 +7,6 @@ Token-based highlighter with minimal functionality written in javascript.
 Lang-pack includes some sort of javascript, python and CLI highlighters.
 
 Probably it won't work on non-trivial code and, maybe, even in some
-
 sort of trivial one.
 
 # Pro
