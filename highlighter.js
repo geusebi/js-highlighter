@@ -213,9 +213,18 @@ function HTMLTranslator(specs={}) {
         skip
     });
 
-    /* Substitute element's content with its translation. */
-    function highlight(elem) {
-        const input = elem.innerHTML;
+    /* Substitute element's content with its translation.
+    If 'unescape_entities' is true (default) let the browser itself
+    resolve every html entities to its corresponding character.
+    */
+    function highlight(elem, unescape_entities=true) {
+        let input;
+        const has_children = elem.childNodes.length !== 0;
+        if (unescape_entities === true && has_children) {
+            input = elem.childNodes[0].nodeValue;
+        } else {
+            input = elem.innerHTML;
+        }
         return elem.innerHTML = t.translate(input);
     }
 
