@@ -30,17 +30,6 @@ function Scanner(patterns_list=[]) {
         on_match
     };
 
-    /*
-    Pattern function definition
-    It is a function which try to match a token of type 'id'.
-    Return the matching string or, if it fails, 'undefined'.
-    The function should have a signature of the form:
-    (src, i, ctx) // ctx is optional
-    'source' is the actual source string,
-    'i' is position from where to try to match the token,
-    'context' is an object shared between all the patterns.
-    */
-
     /* Add a function or a regex to the list of patterns.
     'func_or_re' could be valid pattern matching function
     (see Pattern function definition) or a regex with an optional
@@ -71,10 +60,9 @@ function Scanner(patterns_list=[]) {
     }
 
     /* A function called after every successful pattern match.
-    The default one does nothing.
-    It is meant to be substituted by assigning a new one directly to
-    'scanner.on_match'. It could be used to implement more complex
-    behaviour (e.g. backtracking).
+    The default one does nothing. It is meant to be substituted by
+    assigning a new one directly to 'scanner.on_match'. It could be
+    used to implement more complex behaviour (e.g. backtracking).
     */
     function on_match(token, context) {}
 
@@ -271,6 +259,13 @@ Short Summary
 - All APIs are simple objects
 - Token:
     base data structure.
+- Pattern function:
+    a function which try to match a token of type 'id'.
+    Return the matching string or, if it fails, 'undefined'.
+    should have a signature of the form: (src, i, context)
+    'source' is the actual source string,
+    'i' is position from where to try to match the token,
+    'context' is an object shared between patterns (optional).
 - Scanner:
     list of patterns,
     patterns are added with 'scanner.add',
