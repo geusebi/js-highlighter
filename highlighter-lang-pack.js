@@ -33,7 +33,7 @@ const suites = {};
     token("number", /\d+(\.\d*)?(E[+-]?\d+)?/i);
     token("number", /\.\d+(E[+-]?\d+)?/i);
 
-    token("comment", /\/\/.*$/);
+    token("comment", /\/\/.*$/m);
     token("comment", /\/\*[^]*?\*\//m);
 
     token("quoted", /"(\\.|[^"])*?"/);
