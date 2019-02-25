@@ -3,12 +3,16 @@ import {HTMLTranslator} from './highlighter.js';
 
 const suites = {};
 
-// Javascript
+/* Javascript
+only major functionality - non compliant */
 {
     suites.js = HTMLTranslator();
+    // Aliases and helpers
     const {token, convert, element} = suites.js;
     const to_span = element("span");
 
+    /* Keywords need to lookahead one char to check if there
+    is an actual match. */
     const keywords = (
         "(abstract|arguments|await|boolean|break|" +
         "byte|case|catch|char|class|const|" +
@@ -24,39 +28,54 @@ const suites = {};
         "while|with|yield)[^a-z]"
     );
 
-    token("space", /\s+/);
+    token("space", /\s+/); // White space
 
+    /* Keywords and names */
     token("keyword", RegExp(keywords), 1);
     token("name", /[a-z_][a-z\d_]*/i);
 
+    /* Binaries, octals, hexadecimals and numbers
+    (with and without E part) */
     token("number", /0b[01]+|0o[0-7]+|0x[\dA-F]+/i);
     token("number", /\d+(\.\d*)?(E[+-]?\d+)?/i);
     token("number", /\.\d+(E[+-]?\d+)?/i);
 
+    /* Single and multi line comments */
     token("comment", /\/\/.*$/m);
     token("comment", /\/\*[^]*?\*\//m);
 
+    /* Quoted text of type double, single and tick.
+    Non-standard: it will swallow newlines and other
+    invalid characters too. */
     token("quoted", /"(\\.|[^"])*?"/);
     token("quoted", /'(\\.|[^'])*?'/);
     token("quoted", /`(\\.|[^`])*?`/);
 
+    /* Any operators of any length.
+    Non-standard: invalid and non existent operators */
     token("operator", /[=<>!*&|\/%^+-][=<>&|]*/);
 
-    token("char", (source, i) => source[i]);
+    token("char", (source, i) => source[i]); // Any other char
 
+    /* Any interesting token is converted to a span element
+    with class equal to the token's id */
     convert(
         ["keyword", "number", "comment", "quoted", "operator"],
         to_span
     );
 }
 
-// Python
+/* Python
+only major functionality - non compliant */
 {
     suites.py = HTMLTranslator();
+    // Aliases and helpers
     const {token, convert, element} = suites.py;
     const to_span = element("span");
 
-    let keywords = (
+    /* Keywords need to lookahead one char to check if there
+    is an actual match. */
+    const keywords = (
         "(False|None|True|and|as|assert|async|await|" +
         "break|class|continue|def|del|elif|else|" +
         "except|finally|for|from|global|if|import|" +
@@ -64,43 +83,63 @@ const suites = {};
         "return|try|while|with|yield)[^a-z]"
     );
 
-    token("keyword", RegExp(keywords), 1);
+    token("space", /\s+/); // White space
 
+    /* Keywords and names */
+    token("keyword", RegExp(keywords), 1);
     token("name", /[a-z_][a-z\d_]*/i);
 
-    token("number", /0b[01]+|0o[0-7]+|0x[0-9a-f]+/i);
-    token("number", /\d+(\.\d*)?(E\d+)?J?/i);
-    token("number", /\.\d+(E\d+)?J?/i);
+    /* Binaries, octals, hexadecimals and numbers
+    (with and without E part or J) */
+    token("number", /0b[01]+|0o[0-7]+|0x[\da-f]+/i);
+    token("number", /\d+(\.\d*)?(E[+-]\d+)?J?/i);
+    token("number", /\.\d+(E[+-]\d+)?J?/i);
 
+    /* Single and multi line comments */
     token("comment", /#.*$/m);
-    token("comment", /"""([^]*?[^\\])?"""/m);
 
+    /* Quoted text of type double and single in both forms
+    of one or triple char.
+    Non-standard: it will swallow newlines and other
+    invalid characters too. */
     token("quoted", /"(\\.|[^"])*?"/);
     token("quoted", /'(\\.|[^'])*?'/);
+    token("quoted", /"""([^]*?[^\\])?"""/m);
+    token("quoted", /'''([^]*?[^\\])?'''/m);
 
-    token("space", /\s+/);
+    token("char", (source, i) => source[i]); // Any other char
 
-    token("char", (source, i) => source[i]);
-
+    /* Any interesting token is converted to a span element
+    with class equal to the token's id */
     convert(
         ["keyword", "number", "comment", "quoted"],
         to_span
     );
 }
 
-// CLI
-// bash-like with optional username of the form '(name) $'
+/* CLI
+bash-like with optional username */
 {
     suites.cli = HTMLTranslator();
+    // Aliases and helpers
     const {token, convert, element} = suites.cli;
     const to_span = element("span");
 
-    token("prompt", /^(\([a-z][a-z0-9]*\))? [\$#] /im);
-    token("stdout", /^.*\n/im);
-    token("command", /[^]*?[^\\]\n/im);
-    token("char", (source, i) => source[i]);
+    /* Optional username in parenthesis followed by $ or # */
+    token("prompt", /^(\([a-z][a-z\d]*\))? [\$#] /im);
 
-    convert(["prompt", "stdout"], to_span);
+    /* If at line start, eat up everything to line end */
+    token("stdout", /^.*\n/im);
+
+    /* If in the middle of a line, eat up everything to line
+    end or, if the line ends with a \, eat next line too */
+    token("command", /[^]*?[^\\]\n/im);
+
+    token("char", (source, i) => source[i]); // Any other char
+
+    /* Any interesting token is converted to a span element
+    with class equal to the token's id */
+    convert(["prompt", "stdout", "command"], to_span);
 }
 
 export {
