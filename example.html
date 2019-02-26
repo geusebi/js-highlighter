@@ -8,17 +8,18 @@
         .comment { font-style: italic; color: #999; }
         .quoted { color: #666; }
         .number { font-variant: small-caps; color: #666; }
+        .operator { color: #000; font-weight: 900; }
     </style>
 </head>
 <body>
-<script type=module>
+<script id=hl type=module>
     import {suites} from './highlighter-lang-pack.js';
 
     document.addEventListener("DOMContentLoaded", () => {
         /* Copy this script code to pre#before and pre#after.
            Then highlight pre#after.
         */
-        const script = document.getElementsByTagName("script")[0];
+        const script = document.getElementById("hl");
         const pre_before = document.getElementById("before");
         const pre_after = document.getElementById("after");
         pre_before.innerHTML = pre_after.innerHTML = script.innerHTML;
