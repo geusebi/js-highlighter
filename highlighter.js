@@ -56,7 +56,7 @@ function Scanner(patterns_list=[]) {
                 return match[index] || "";
             }
             return undefined;
-        }
+        };
     }
 
     /* A function called after every successful pattern match.
@@ -225,7 +225,7 @@ function HTMLTranslator(specs={}) {
         } else {
             input = elem.innerHTML;
         }
-        return elem.innerHTML = t.translate(input);
+        return (elem.innerHTML = t.translate(input));
     }
 
     /* Create an element factory for a specific 'tag'.
@@ -233,12 +233,12 @@ function HTMLTranslator(specs={}) {
     */
     function element(tag, add_class=true) {
         return (token) => {
-            const {id, lexeme} = token;
+            let {id, lexeme} = token;
             if (!add_class) {
-                id = '';
+                id = "";
             }
             return `<${tag} class='${id}'>${lexeme}</${tag}>`;
-        }
+        };
     }
 
     /* Create a text node. */
@@ -305,7 +305,7 @@ Short example
         const to_italic = element("i", false);
 
         token("num", /\d+/);
-        token("op", /[/*+-]/);
+        token("op", /[/+*-]/);
 
         convert("num", to_italic);
         convert("op", to_bold);
