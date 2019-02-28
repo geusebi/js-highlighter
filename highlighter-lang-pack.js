@@ -30,6 +30,10 @@ only major functionality - non compliant */
 
     token("space", /\s+/); // White space
 
+    /* Single and multi line comments */
+    token("comment", /\/\/.*$/m);
+    token("comment", /\/\*[^]*?\*\//m);
+
     /* Keywords and names */
     token("keyword", RegExp(keywords), 1);
     token("name", /[a-z_][a-z\d_]*/i);
@@ -39,10 +43,6 @@ only major functionality - non compliant */
     token("number", /0b[01]+|0o[0-7]+|0x[\dA-F]+/i);
     token("number", /\d+(\.\d*)?(E[+-]?\d+)?/i);
     token("number", /\.\d+(E[+-]?\d+)?/i);
-
-    /* Single and multi line comments */
-    token("comment", /\/\/.*$/m);
-    token("comment", /\/\*[^]*?\*\//m);
 
     /* Quoted text of type double, single and tick.
     Non-standard: it will swallow newlines and other
@@ -85,6 +85,9 @@ only major functionality - non compliant */
 
     token("space", /\s+/); // White space
 
+    /* Single and multi line comments */
+    token("comment", /#.*$/m);
+
     /* Keywords and names */
     token("keyword", RegExp(keywords), 1);
     token("name", /[a-z_][a-z\d_]*/i);
@@ -92,11 +95,8 @@ only major functionality - non compliant */
     /* Binaries, octals, hexadecimals and numbers
     (with and without E part or J) */
     token("number", /0b[01]+|0o[0-7]+|0x[\da-f]+/i);
-    token("number", /\d+(\.\d*)?(E[+-]\d+)?J?/i);
-    token("number", /\.\d+(E[+-]\d+)?J?/i);
-
-    /* Single and multi line comments */
-    token("comment", /#.*$/m);
+    token("number", /\d+(\.\d*)?(E[+-]?\d+)?J?/i);
+    token("number", /\.\d+(E[+-]?\d+)?J?/i);
 
     /* Quoted text of type double and single in both forms
     of one or triple char.
