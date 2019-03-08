@@ -25,9 +25,8 @@ function Transformer(rules_dict={}) {
     }
 
     /* Add a rule to the dictionary.
-
     'id_or_list' could be either an 'id' or a list of 'id's.
-    'func' is a function of the form (token) => new_token.
+    'func' is a function of the form (token) => output.
     */
     function add(id_or_list, func) {
         if (Array.isArray(id_or_list)) {

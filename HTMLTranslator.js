@@ -8,8 +8,9 @@ export {
     mark_newlines
 };
 
-/* Create an HTMLTranslator. */
+/* Create an html translator. */
 function HTMLTranslator(specs={}) {
+    /* Extends 'Translator'. */
     let t = Translator(specs);
 
     /* If there's no matching rule defaults to text node. */
@@ -21,7 +22,11 @@ function HTMLTranslator(specs={}) {
         highlight,
     });
 
-    /**/
+    /* Translate a string 'source' in a 'DocumentFragment'
+    according to the scanner and the transformer.
+    'doc' is the document used to create the html
+    fragment, elements and text nodes.
+    */
     function translate(source, doc) {
         let {iter_tokens} = t.scanner;
         let {transform} = t.transformer;
@@ -37,18 +42,20 @@ function HTMLTranslator(specs={}) {
     }
 
     /* Substitute element's content with its translation.
-    If 'unescape_entities' is true (default) let the browser
-    itself resolve every html entities to its corresponding
+    If 'escape_entities' is false (default) let the browser
+    itself resolve every html entity to its corresponding
     character.
+    The actual source to be highlighted is the first
+    child of 'elem' and it should be a text node.
     */
-    function highlight(elem, escape_entities=true) {
+    function highlight(elem, escape_entities=false) {
         let input;
         /* todo: Mmh.. is this the correct way to escape?
         const has_children = elem.childNodes.length !== 0;
         if (escape_entities === false && has_children) {
             input = elem.childNodes[0].nodeValue;
         */
-        if (escape_entities === true) {
+        if (escape_entities === false) {
             input = elem.textContent;
         } else {
             input = elem.innerHTML;
@@ -91,7 +98,7 @@ function text() {
         doc.createTextNode(token.lexeme);
 }
 
-/* Search newlines in an Element and wrap them in 'nl'.
+/* Search and replace newlines with a given Element 'nl'.
 If 'nl' is undefined it will default to 'SPAN.newline'.
 */
 function mark_newlines(elem, nl) {

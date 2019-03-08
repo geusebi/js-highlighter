@@ -2,6 +2,9 @@
 import Token from './Token.js';
 
 export default Scanner;
+export {
+    pattern_from_regex
+};
 
 /* Create a new scanner. */
 function Scanner(patterns_list=[]) {
@@ -17,30 +20,14 @@ function Scanner(patterns_list=[]) {
     /* Add a function or a regex to the list of patterns.
     'func_or_re' could be valid pattern matching function
     (see Pattern function definition) or a regex with an optional
-    capturing index (see '_from_regex').
+    capturing index (see 'pattern_from_regex').
     */
     function add(id, func_or_re, index) {
         let pattern = func_or_re;
         if (func_or_re instanceof RegExp) {
-            pattern = _from_regex(func_or_re, index);
+            pattern = pattern_from_regex(func_or_re, index);
         }
         patterns.push([id, pattern]);
-    }
-
-    /* Convert a regex to a pattern function.
-    'index' controls which capturing group is the actual lexeme.
-    If not given the whole matching string is the lexeme.
-    */
-    function _from_regex(re, index=0) {
-        const re_y = RegExp(re, re.flags + "y");
-        return function (source, i) {
-            re_y.lastIndex = i;
-            const match = source.match(re_y);
-            if (match /* !== null */) {
-                return match[index] || "";
-            }
-            return undefined;
-        };
     }
 
     /* A function called after every successful pattern match.
@@ -94,4 +81,20 @@ function Scanner(patterns_list=[]) {
         }
         yield Token("(end)", "", i);
     }
+}
+
+/* Convert a regex to a pattern function.
+'index' controls which capturing group is the actual lexeme.
+If not given the whole matching string is the lexeme.
+*/
+function pattern_from_regex(re, index=0) {
+    const re_y = RegExp(re, re.flags + "y");
+    return function (source, i) {
+        re_y.lastIndex = i;
+        const match = source.match(re_y);
+        if (match /* !== null */) {
+            return match[index] || "";
+        }
+        return undefined;
+    };
 }

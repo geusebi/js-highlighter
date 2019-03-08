@@ -17,8 +17,8 @@ function Translator(specs={}) {
     }
 
     /* Exposed API
-    'translator.token' and 'translator.convert' is sugar to ease
-    adding patterns and rules.
+    'translator.token' and 'translator.convert' is
+    sugar to ease adding patterns and rules.
     */
     return {
         scanner,
