@@ -92,7 +92,7 @@ function element(tag, class_id=true) {
     };
 }
 
-/* Create a text node. */
+/* Create a text node factory. */
 function text() {
     return (token, doc) =>
         doc.createTextNode(token.lexeme);

@@ -45,6 +45,4 @@ token("quoted", /'(\\.|[^'])*?'/);
 token("quoted", /"""([^]*?[^\\])?"""/m);
 token("quoted", /'''([^]*?[^\\])?'''/m);
 
-token("char", (source, i) => source[i]); // Any other char
-
 export default python;

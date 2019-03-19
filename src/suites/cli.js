@@ -19,8 +19,6 @@ token("stdout", /^.*\n/im);
 end or, if the line ends with a \, eat next line too */
 token("command", /[^]*?[^\\]\n/im);
 
-token("char", (source, i) => source[i]); // Any other char
-
 /* Any interesting token is converted to a span element
 with class equal to the token's id */
 convert(["prompt", "stdout", "command"], to_span);

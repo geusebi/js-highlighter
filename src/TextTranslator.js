@@ -3,7 +3,7 @@ import Translator from './Translator';
 
 export default TextTranslator;
 
-/* Create an text transformer. */
+/* Create a text transformer. */
 function TextTranslator(spec={}) {
     /* Extends 'Translator'. */
     let t = Translator(spec);
@@ -16,8 +16,8 @@ function TextTranslator(spec={}) {
         translate
     });
 
-    /* Translate a string 'source' in a 'DocumentFragment'
-    according to the scanner and the transformer.
+    /* Translate a string 'source' according to the scanner
+    and the transformer.
     */
     function translate(source) {
         const {transform} = t.transformer;

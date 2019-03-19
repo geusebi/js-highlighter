@@ -51,10 +51,8 @@ token("quoted", /"(\\.|[^"])*?"/);
 token("quoted", /'(\\.|[^'])*?'/);
 token("quoted", /`(\\.|[^`])*?`/);
 
-/* Any operators of any length.
+/* Any operator of any length.
 Non-standard: invalid and non existent operators */
 token("operator", /[=<>!*&|\/%^+-][=<>&|]*/);
-
-token("char", (source, i) => [source[i], i]); // Any other char
 
 export default javascript;

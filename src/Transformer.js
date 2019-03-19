@@ -1,7 +1,7 @@
 
 export default Transformer;
 
-/* Create a new transformer. */
+/* Create a transformer. */
 function Transformer(rules_dict={}) {
     let rules = rules_dict;
 

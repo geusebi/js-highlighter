@@ -4,7 +4,7 @@ import Transformer from './Transformer.js';
 
 export default Translator;
 
-/* Create a new translator. */
+/* Create a translator. */
 function Translator(specs={}) {
     let {scanner, transformer} = specs;
 
@@ -28,6 +28,7 @@ function Translator(specs={}) {
         convert: transformer.add
     };
 
+    /* To be implemented in derived classes. */
     function translate() {
         throw Error("unimplemented");
     }
