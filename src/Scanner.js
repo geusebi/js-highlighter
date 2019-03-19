@@ -25,7 +25,7 @@ function Scanner(patterns_list=[]) {
     function add(id, func_or_re, index) {
         let pattern = func_or_re;
         if (func_or_re instanceof RegExp) {
-            pattern = pattern_from_regex(func_or_re, index);
+            pattern = pattern_from_regex(func_or_re);
         }
         patterns.push([id, pattern]);
     }
@@ -53,25 +53,31 @@ function Scanner(patterns_list=[]) {
         (except for '(start)', '(end)' and '(unmatched)').
     */
     function* iter_tokens(source, context={}) {
-        let i = 0, guard, lexeme, token;
+        let i = 0, guard, lexeme, l_idx, match, token;
 
         yield Token("(start)", "", i);
         while (i < source.length) {
             guard = i;
             for (const [id, pattern] of patterns) {
-                lexeme = pattern(source, i, context);
-                if (lexeme === undefined) {
+                match = pattern(source, i, context);
+                if (match === undefined) {
                     continue;
                 }
+                [lexeme, l_idx] = match;
 
-                token = Token(id, lexeme, i);
-                yield token;
+                token = Token(id, lexeme, l_idx);
+                i = l_idx + lexeme.length;
                 on_match(token, context);
-                i += lexeme.length;
+
+                yield token;
 
                 if (lexeme.length !== 0) {
                     break;
                 }
+            }
+
+            if (guard > i) {
+                throw Error("scanner went backwards");
             }
 
             if (guard == i) {
@@ -87,13 +93,13 @@ function Scanner(patterns_list=[]) {
 'index' controls which capturing group is the actual lexeme.
 If not given the whole matching string is the lexeme.
 */
-function pattern_from_regex(re, index=0) {
+function pattern_from_regex(re) {
     const re_y = RegExp(re, re.flags + "y");
     return function (source, i) {
         re_y.lastIndex = i;
         const match = source.match(re_y);
         if (match /* !== null */) {
-            return match[index] || "";
+            return [match[0], match.index];
         }
         return undefined;
     };

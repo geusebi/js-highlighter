@@ -13,7 +13,7 @@ let {token} = javascript;
 
 /* Keywords need to lookahead one char to check if there
 is an actual match. */
-let keywords = (
+let keywords = RegExp(
     "(abstract|arguments|await|boolean|break|" +
     "byte|case|catch|char|class|const|" +
     "continue|debugger|default|delete|do|" +
@@ -25,7 +25,7 @@ let keywords = (
     "return|short|static|super|switch|" +
     "synchronized|this|throw|throws|transient|" +
     "true|try|typeof|var|void|volatile|" +
-    "while|with|yield)[^a-z]"
+    "while|with|yield)(?=[^a-z])"
 );
 
 token("space", /\s+/); // White space
@@ -35,7 +35,7 @@ token("comment", /\/\/.*$/m);
 token("comment", /\/\*[^]*?\*\//m);
 
 /* Keywords and names */
-token("keyword", RegExp(keywords), 1);
+token("keyword", keywords);
 token("name", /[a-z_][a-z\d_]*/i);
 
 /* Binaries, octals, hexadecimals and numbers
@@ -55,6 +55,6 @@ token("quoted", /`(\\.|[^`])*?`/);
 Non-standard: invalid and non existent operators */
 token("operator", /[=<>!*&|\/%^+-][=<>&|]*/);
 
-token("char", (source, i) => source[i]); // Any other char
+token("char", (source, i) => [source[i], i]); // Any other char
 
 export default javascript;

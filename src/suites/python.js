@@ -13,12 +13,12 @@ let {token} = python;
 
 /* Keywords need to lookahead one char to check if there
 is an actual match. */
-let keywords = (
+let keywords = RegExp(
     "(False|None|True|and|as|assert|async|await|" +
     "break|class|continue|def|del|elif|else|" +
     "except|finally|for|from|global|if|import|" +
     "in|is|lambda|nonlocal|not|or|pass|raise|" +
-    "return|try|while|with|yield)[^a-z]"
+    "return|try|while|with|yield)(?=[^a-z])"
 );
 
 token("space", /\s+/); // White space
@@ -27,7 +27,7 @@ token("space", /\s+/); // White space
 token("comment", /#.*$/m);
 
 /* Keywords and names */
-token("keyword", RegExp(keywords), 1);
+token("keyword", keywords);
 token("name", /[a-z_][a-z\d_]*/i);
 
 /* Binaries, octals, hexadecimals and numbers
